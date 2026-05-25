@@ -1,0 +1,25 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+rule_files:
+  - "/etc/prometheus/alert.rules.yml"
+
+scrape_configs:
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['mysql-exporter:9104']
+  - job_name: 'web'
+    static_configs:
+      - targets: ['web:5000']
+
+  - job_name: 'mysql-k8s'
+    static_configs:
+      - targets: ['172.17.0.3:30004']
+

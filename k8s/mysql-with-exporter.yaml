@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  selector:
+    app: mysql
+  ports:
+  - port: 3306
+    targetPort: 3306
+    name: mysql
+  - port: 9104
+    targetPort: 9104
+    name: exporter
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        imagePullPolicy: Never
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "Test123456"
+        - name: MYSQL_DATABASE
+          value: "testdb"
+        ports:
+        - containerPort: 3306
+      - name: exporter
+        image: prom/mysqld-exporter:latest
+        imagePullPolicy: Never
+        args:
+        - "--mysqld.username=root:Test123456"
+        - "--mysqld.address=localhost:3306"
+        ports:
+        - containerPort: 9104
